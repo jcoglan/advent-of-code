@@ -1,0 +1,183 @@
+|         | > Aa
+| > Aa Bb |   Bb
+    1         2
+
+At 2, options are:
+  - Go fetch B:
+    - Take A down (b protected by B)
+    - Take AB up (a protected from B by returning A)
+
+      |   a     | > Aa B
+      | > A Bb  |   b
+
+    - At this point, can take a or B down to fetch b, decide:
+      - Can use a if
+        - there are no a-hostile generators downstairs
+      - Can use B if
+        - there are no B-vulnerable chips downstairs, and
+        - no B-protected chips upstairs (chips vulnerable if you remove B)
+      - In this case both are true
+
+  - Go fetch b:
+    - Cannot take a down (killed by B)
+    - So, take A down
+    - Cannot take Ab (A kills b)
+    - Cannot take Bb (B kills a)
+    - So, just take b
+
+      |   a     | > a b
+      | > A Bb  |   A B
+
+    - Less optimal layout, still two items to fetch up
+
+
+
+Example playthrough:
+
+|         |       |         |         |         |         |
+|   B     |   B   | > Aa B  |   A B   |   A B   |   A B   | > Aa Bb
+|   A     | > Aa  |         | > a     |         | > a b   |
+| > a b   |   b   |   b     |   b     | > a b   |         |
+
+    Then two options:
+
+    | > Aa  |   a     | > Aa B  |   A B   | > Aa Bb
+    |   Bb  | > A Bb  |   b     | > a b   |
+    |       |         |         |         |
+    |       |         |         |         |
+
+    | > a b   |   b     | > A Bb  |   A B   | > Aa Bb
+    |   A B   | > Aa B  |   a     | > a b   |
+    |         |         |         |         |
+    |         |         |         |         |
+
+Steps:
+  - Take movable chip upstairs
+  - Take movable pair upstairs
+  - Take safe chip down to rescue chip
+  - Take safe chip down to rescue chip
+  - Take two movable chips upstairs
+  - Take two movable chips upstairs
+  - Then:
+    - Take movable pair upstairs
+    - Take movable generator down to rescue generator
+    - Take two movable generators upstairs
+    - Take safe chip down to rescue chip
+    - Take two movable chips upstairs
+  - or:
+    - Take two movable chips upstairs
+    - Take safe chip down
+    - Take two movable generators upstairs
+    - Take safe chip down to rescue chip
+    - Take two movable chips upstairs
+
+Rules:
+  - A pair can be moved if
+    - there are no vulnerable chips at target
+  - A generator can be moved if
+    - there are no vulnerable chips at target
+    - it does not leave its chip exposed to other generators at source
+  - A chip can be moved if
+    - its generator exists at target, or
+    - there are no other generators at target
+
+
+
+Problem playthrough:
+
+|             |               |               | > a b         |   b
+|   b c d e   |   b c d e     | > a b c d e   |   c d e       | > a c d e
+|   B C D E   | > Aa B C D E  |   A B C D E   |   A B C D E   |   A B C D E
+| > Aa        |               |               |               |
+
+| > a b c       |   b c         | > a b c d     |   b c d       | > a b c d e
+|   d e         | > a d e       |   e           | > a e         |
+|   A B C D E   |   A B C D E   |   A B C D E   |   A B C D E   |   A B C D E
+|               |               |               |               |
+
+|   b c d e     |   b c d e     |   b c d e
+| > a           |               | > Aa
+|   A B C D E   | > Aa B C D E  |   B C D E
+|               |               |
+
+Stuck b/c you can move a up, but then all you can do is move it back down. Can't
+use A to go fetch more generators b/c they'll kill a.
+
+Let's backtrace one step and leave the pair where it is, moving generators
+instead:
+
+|   b c d e     |   b c d e   |   b c d e   |   b c d e   |   b c d e
+|               | > B C       |   C         | > B C D     |   C D
+| > Aa B C D E  |   Aa D E    | > Aa B D E  |   Aa E      | > Aa B E
+|               |             |             |             |
+
+|   b c d e   |   b c d e   |
+| > B C D E   |   C D E     |
+|   Aa        | > Aa B      | > 
+|             |             |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+|           |           |               | > d e       |   e         |   e
+|   Dd Ee   |   Dd Ee   | > B C Dd Ee   |   B C D E   | > B C Dd E  |   B C D E
+|   b c     | > Bb Cc   |   b c         |   b c       |   b c       | > b c d
+| > Aa B C  |   Aa      |   Aa          |   Aa        |   Aa        |   Aa
+
+|   e           | > b c e     |   c e       |   c e       |   c e
+| > Bb Cc D E   |   B C D E   | > Bb C D E  |   B C D E   | > Bb C Dd E
+|   d           |   d         |   d         | > b d       |
+|   Aa          |   Aa        |   Aa        |   Aa        |   Aa
+
+| > b c d e   |   c d e     |   c d e   |   c d e   |   c d e   |   c d e
+|   B C D E   | > Bb C D E  |   Bb D E  |   Bb D E  |   Bb D E  | > Aa Bb D E
+|             |             | > C       |           | > Aa      |
+|   Aa        |   Aa        |   Aa      | > Aa C    |   C       |   C
+
+| > a b c d e   |   b c d e   |   b c d e   |   b c d e   |   b c d e
+|   A B D E     | > Aa B D E  |   Aa D E    |   Aa D E    |   Aa D E
+|               |             | > B         |             | > B C
+|   C           |   C         |   C         | > B C       |
+
+| b c d e       | > a b c d e   |   c d e         | > a c d e
+| > Aa B C D E  |   A B C D E   | > Aa Bb C D E   |   A Bb C D E
+|               |               |                 |
+|               |               |                 |
+
+|   d e           | > a d e         |   e               | > a e
+| > Aa Bb Cc D E  |   A Bb Cc D E   | > Aa Bb Cc Dd E   |   A Bb Cc Dd E
+|                 |                 |                   |
+|                 |                 |                   |
+
+|                   |
+| > Aa Bb Cc Dd Ee  | 
+|                   |
+|                   |
+
+
+
+
