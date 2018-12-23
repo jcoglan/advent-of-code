@@ -2,6 +2,12 @@ require 'set'
 require_relative '../22/dijkstra'
 
 class Map
+  def self.parse(regex)
+    map = new
+    regex.each_char { |char| map.parse(char) }
+    map
+  end
+
   attr_reader :doors
 
   def initialize
@@ -62,10 +68,8 @@ class Map
   end
 end
 
-map = Map.new
-
 input_path = File.expand_path('../input.txt', __FILE__)
-File.read(input_path).each_char { |char| map.parse(char) }
+map = Map.parse(File.read(input_path))
 
 dijkstra = Dijkstra.new(map, [0, 0])
 
