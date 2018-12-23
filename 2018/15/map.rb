@@ -31,7 +31,7 @@ class Map
     path = target_path(unit)
     return unit unless path
 
-    target = path.first
+    target = path[1]
     cell = @cells[target.y][target.x]
 
     cell.state  = unit.state
@@ -61,6 +61,19 @@ class Map
     @cells.flat_map { |row| row.select(&:space?) }
   end
 
+  def next_nodes(cell)
+    spaces = [[0, -1], [1, 0], [0, 1], [-1, 0]].map do |dx, dy|
+      x, y = cell.x + dx, cell.y + dy
+
+      if x.between?(0, @cells.first.size - 1) and y.between?(0, @cells.size - 1)
+        space = @cells[y][x]
+        space.space? ? space : nil
+      end
+    end
+
+    spaces.compact.map { |space| [space, 1] }
+  end
+
   private
 
   def target_path(unit)
@@ -71,7 +84,7 @@ class Map
     graph   = Dijkstra.new(self, unit)
 
     paths = spaces.map do |space|
-      path = graph.shortest_path(space)
+      path = graph.shortest_path(space) { |node| [node.y, node.x] }
       [space, path]
     end
     paths.select!(&:last)

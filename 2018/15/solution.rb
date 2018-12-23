@@ -1,5 +1,5 @@
 require_relative './map'
-require_relative './dijkstra'
+require_relative '../22/dijkstra'
 require_relative './game'
 
 input_path = File.expand_path('../input.txt', __FILE__)

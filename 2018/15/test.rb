@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 
 require_relative './map'
-require_relative './dijkstra'
+require_relative '../22/dijkstra'
 require_relative './game'
 
 describe Game do

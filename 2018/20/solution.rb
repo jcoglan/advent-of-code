@@ -1,4 +1,5 @@
 require 'set'
+require_relative '../22/dijkstra'
 
 class Map
   attr_reader :doors
@@ -20,6 +21,10 @@ class Map
       when '|' then switch
       when ')' then pop
     end
+  end
+
+  def next_nodes(node)
+    @doors[node].map { |n| [n, 1] }
   end
 
   private
@@ -62,17 +67,10 @@ map = Map.new
 input_path = File.expand_path('../input.txt', __FILE__)
 File.read(input_path).each_char { |char| map.parse(char) }
 
-nodes = map.doors.keys
-dists = Hash[nodes.map { |node| [node, 1_000_000] }]
-dists[[0, 0]] = 0
+dijkstra = Dijkstra.new(map, [0, 0])
 
-until nodes.empty?
-  node = nodes.min_by { |node| dists[node] }
-
-  map.doors[node].each do |neighbor|
-    dists[neighbor] = [dists[neighbor], dists[node] + 1].min
-  end
-  nodes.delete(node)
+dists = map.doors.keys.map do |node|
+  [node, dijkstra.distance_to(node)]
 end
 
 (x, y), d = dists.max_by(&:last)
@@ -81,14 +79,10 @@ p dists.count { |_, d| d >= 1000 }
 
 path = Set.new
 
-until d == 0
-  nx, ny = map.doors[[x, y]].min_by { |node| dists[node] }
-  path << [x, y, nx, ny]
-  x, y = nx, ny
-  d = dists[[x, y]]
+dijkstra.shortest_path([x, y]) { [] }.each_cons(2) do |(px, py), (nx, ny)|
+  path << [px, py, nx, ny]
+  path << [nx, ny, px, py]
 end
-
-path << [x, y, 0, 0]
 
 rx = map.doors.keys.map(&:first).minmax
 ry = map.doors.keys.map(&:last).minmax
