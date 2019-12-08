@@ -4,13 +4,13 @@ input_path = File.expand_path('../input.txt', __FILE__)
 memory     = File.read(input_path).split(',').map(&:to_i)
 
 machine = Intcode.new(memory.clone)
-machine.input = 1
+machine.inputs << 1
 machine.run
 
-p machine.output
+p machine.outputs.last
 
 machine = Intcode.new(memory.clone)
-machine.input = 5
+machine.inputs << 5
 machine.run
 
-p machine.output
+p machine.outputs.last

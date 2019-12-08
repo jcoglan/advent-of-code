@@ -1,9 +1,11 @@
 class Intcode
-  attr_accessor :input, :output
+  attr_accessor :inputs, :outputs
 
   def initialize(memory)
-    @memory = memory
-    @ip = 0
+    @memory  = memory
+    @inputs  = []
+    @outputs = []
+    @ip      = 0
   end
 
   def run
@@ -16,10 +18,10 @@ class Intcode
         write(3, read(1) * read(2))
         @ip += 4
       when 3
-        write(1, @input)
+        write(1, @inputs.shift)
         @ip += 2
       when 4
-        @output = read(1)
+        @outputs.push(read(1))
         @ip += 2
       when 5
         @ip = (read(1) == 0) ? @ip + 3 : read(2)
