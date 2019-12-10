@@ -6,6 +6,7 @@ class Intcode
     @inputs  = []
     @outputs = []
     @ip      = 0
+    @base    = 0
   end
 
   def run
@@ -33,6 +34,9 @@ class Intcode
       when 8
         write(3, read(1) == read(2) ? 1 : 0)
         @ip += 4
+      when 9
+        @base += read(1)
+        @ip += 2
       when 99 then break
       end
     end
@@ -40,23 +44,32 @@ class Intcode
 
   private
 
+  def mem(address)
+    @memory.fetch(address, 0)
+  end
+
   def opcode
-    @memory[@ip] % 100
+    mem(@ip) % 100
   end
 
   def mode(offset)
     f = 10 ** (offset + 1)
-    (@memory[@ip] / f) % 10
+    (mem(@ip) / f) % 10
   end
 
   def read(offset)
     case mode(offset)
-    when 0 then @memory[@memory[@ip + offset]]
-    when 1 then @memory[@ip + offset]
+    when 0 then mem(mem(@ip + offset))
+    when 1 then mem(@ip + offset)
+    when 2 then mem(mem(@ip + offset) + @base)
     end
   end
 
   def write(offset, value)
-    @memory[@memory[@ip + offset]] = value
+    case mode(offset)
+    when 0 then @memory[mem(@ip + offset)] = value
+    when 1 then @memory[@ip + offset] = value
+    when 2 then @memory[mem(@ip + offset) + @base] = value
+    end
   end
 end
