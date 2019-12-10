@@ -1,10 +1,11 @@
 class Intcode
   attr_accessor :inputs, :outputs
+  attr_reader :memory
 
-  def initialize(memory)
-    @memory  = memory
-    @inputs  = []
-    @outputs = []
+  def initialize(program, inputs: [], outputs: [])
+    @memory  = program.split(',').map(&:to_i)
+    @inputs  = inputs
+    @outputs = outputs
     @ip      = 0
     @base    = 0
   end
