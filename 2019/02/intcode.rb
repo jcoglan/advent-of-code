@@ -10,6 +10,12 @@ class Intcode
     @base    = 0
   end
 
+  def clone
+    super.tap do |copy|
+      copy.instance_variable_set(:@memory, @memory.clone)
+    end
+  end
+
   def run
     loop do
       case opcode
@@ -23,8 +29,9 @@ class Intcode
         write(1, @inputs.shift)
         @ip += 2
       when 4
-        @outputs.push(read(1))
+        value = read(1)
         @ip += 2
+        @outputs.push(value)
       when 5
         @ip = (read(1) == 0) ? @ip + 3 : read(2)
       when 6
