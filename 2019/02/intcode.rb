@@ -53,7 +53,7 @@ class Intcode
   private
 
   def mem(address)
-    @memory.fetch(address, 0)
+    @memory[address] || 0
   end
 
   def opcode
