@@ -31,3 +31,20 @@ let possibleGames = games.filter((game) => {
 
 let sum = possibleGames.map((game) => game.id).reduce((a, b) => a + b)
 console.log({ sum })
+
+let minimumSets = games.map((game) => {
+  let red = 0, green = 0, blue = 0
+
+  for (let sample of game.samples) {
+    red = Math.max(red, sample.red || 0)
+    green = Math.max(green, sample.green || 0)
+    blue = Math.max(blue, sample.blue || 0)
+  }
+  return { red, green, blue }
+})
+
+let powers = minimumSets.map((set) => {
+  return set.red * set.green * set.blue
+})
+sum = powers.reduce((a, b) => a + b)
+console.log({ sum })
