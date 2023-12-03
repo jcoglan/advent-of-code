@@ -6,8 +6,12 @@ const path = require('path')
 let input = fs.readFileSync(path.join(__dirname, 'input.txt'), 'utf8')
 let lines = input.split(/\n/)
 
+const SYMBOL = /[^0-9.]/
+
 let grid = lines.map((line) => [...line])
 let numbers = []
+let symbols = new Map()
+let parts = []
 
 for (let [row, line] of grid.entries()) {
   let number = null
@@ -20,6 +24,9 @@ for (let [row, line] of grid.entries()) {
       numbers.push(number)
       number = null
     }
+    if (SYMBOL.test(chr)) {
+      symbols.set([row, col].join(':'), { chr, neighbours: [] })
+    }
   }
   if (number) {
     number.value = parseInt(number.text, 10)
@@ -27,31 +34,39 @@ for (let [row, line] of grid.entries()) {
   }
 }
 
-const SYMBOL = /[^0-9.]/
-
-function isSymbol (grid, row, col) {
-  if (!grid[row]) return false
-  let chr = grid[row][col]
-  return chr && SYMBOL.test(chr)
+function checkNeighbour (row, col, number) {
+  let symbol = symbols.get([row, col].join(':'))
+  if (symbol) {
+    parts.push(number)
+    symbol.neighbours.push(number)
+  }
 }
 
-let parts = numbers.filter((number) => {
+for (let number of numbers) {
   let { row } = number
   let a = number.col - 1
   let b = number.col + number.text.length
 
-  if (isSymbol(grid, row, a) || isSymbol(grid, row, b)) {
-    return true
-  }
+  checkNeighbour(row, a, number)
+  checkNeighbour(row, b, number)
 
   for (let col = a; col <= b; col++) {
-    if (isSymbol(grid, row - 1, col) || isSymbol(grid, row + 1, col)) {
-      return true
-    }
+    checkNeighbour(row - 1, col, number)
+    checkNeighbour(row + 1, col, number)
   }
-
-  return false
-})
+}
 
 let sum = parts.map((part) => part.value).reduce((a, b) => a + b)
+console.log({ sum })
+
+let gears = [...symbols.values()].filter((symbol) => {
+  return symbol.chr === '*' && symbol.neighbours.length === 2
+})
+
+let ratios = gears.map((gear) => {
+  let [a, b] = gear.neighbours
+  return a.value * b.value
+})
+
+sum = ratios.reduce((a, b) => a + b)
 console.log({ sum })
